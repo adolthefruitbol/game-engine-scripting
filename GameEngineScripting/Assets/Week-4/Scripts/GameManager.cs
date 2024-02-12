@@ -224,28 +224,22 @@ namespace Battleship
             timeLabel.text = string.Format("{0}:{1}", time / 60, (time % 60).ToString("00"));
         }
 
-        void Restart()
+       public void Restart()
         {
-            // Unselect the current cell
             UnselectCurrentCell();
 
-            // Reset the row and column to 0
             row = 0;
             col = 0;
 
-            // Select the new cell
             SelectCurrentCell();
 
-            // Reset the 2D array data to all false
             hits = new bool[nRows, nCols];
 
-            // Reset the timer and score
             time = 0;
             score = 0;
             timeLabel.text = "0:00";
             scorelabel.text = "Score: 0";
 
-            // Reset the "Hit" and "Miss" objects on each cell
             foreach (Transform cell in gridRoot)
             {
                 Transform hit = cell.Find("Hit");
@@ -256,23 +250,45 @@ namespace Battleship
                 if (miss != null)
                     miss.gameObject.SetActive(false);
             }
+
+            Randomize();
+
+            isGameWon = false;
+
+            winLabel.SetActive(false);
+
+            fireButton.gameObject.SetActive(true);
+            upButton.gameObject.SetActive(true);
+            downButton.gameObject.SetActive(true);
+            leftButton.gameObject.SetActive(true);
+            rightButton.gameObject.SetActive(true);
+
+            restartButton.gameObject.SetActive(false);
+
+
+
         }
 
+        public void Randomize()
+        {
+            for (int i = 0; i < nRows; i++)
+            {
+                for (int j = 0; j < nCols; j++)
+                {
 
-        //Additional Tasks
+                    int randomNumber = Random.Range(0, 10);
 
+                    if (randomNumber > 5)
+                    {
+                        grid[i, j] = 1;
+                    }
+                    else
+                    {
+                        grid[i, j] = 0;
+                    }
+                }
 
-        //Create a button that starts the game over.
-            //  Create a new function called "Restart".
-            //The function need to unselect the current cell
-            //Reset the row and column to 0.
-            //Select the new cell.
-            //And reset the 2D array data to all false.
-            //The timer and score need to be reset
-            //The "Hit" and "Miss" objects on each cell need to be reset(turned off)
-
-        //Randomly change the position of the ships when the used clicks restart button
-            //Iterate through the grid and do a random roll to see if the cell should be 0 or 1.
-            //ex. Do a random roll between 0 and 10, if the number is > 5 then make is a 1, otherwise make it a 0.
+            }
+        }
     }
 }       
