@@ -22,6 +22,9 @@ namespace Battleship
 
         //Represent where the player has fired
         private bool[,] hits;
+        
+        //Is is a new game
+        private bool isGameWon = false;
 
         //Total rows and columns we have
         private int nRows;
@@ -41,6 +44,12 @@ namespace Battleship
         [SerializeField] GameObject winLabel;
         [SerializeField] TextMeshProUGUI timeLabel;
         [SerializeField] TextMeshProUGUI scorelabel;
+        [SerializeField] GameObject fireButton;
+        [SerializeField] GameObject upButton;
+        [SerializeField] GameObject downButton;
+        [SerializeField] GameObject leftButton;
+        [SerializeField] GameObject rightButton;
+        [SerializeField] GameObject restartButton;
 
         private void Awake()
         {
@@ -167,6 +176,8 @@ namespace Battleship
             {
                 ShowMiss();
             }
+
+            TryEndGame();
         }
 
         void TryEndGame()
@@ -174,26 +185,36 @@ namespace Battleship
             //Check every row
             for (int row = 0; row < nRows; row++)
             {
+                Debug.Log("Row check");
                 //And check every column
                 for (int col = 0; col < nCols; col++)
                 {
                     //If cell is not a ship then we can ignore
-                    if (grid[row, col] == 0) continue;
-                    //If a cell is a ship and it hasn't been scored
-                    //then do a simple return because we haven't finished the game  
-                    if (hits[row, col] == false) return;
+                    if (grid[row, col] == 1 && !hits[row, col]) return;
                 }
             }
             //If the loop successfully completes then all
             //ships have been destroyed and show the winLabel
             winLabel.SetActive(true);
+
+            //Deactivate gameplay buttons
+            fireButton.gameObject.SetActive(false);
+            upButton.gameObject.SetActive(false);
+            downButton.gameObject.SetActive(false);
+            leftButton.gameObject.SetActive(false);
+            rightButton.gameObject.SetActive(false);
+
+            //Activate restart button
+            restartButton.gameObject.SetActive(true);
+
             //Stop the timer
-            CancelInvoke("IncrementTime");
+            isGameWon = true;
 
         }
 
         void IncrementTime()
         {
+            if (isGameWon) return;
             //Add 1 to the time
             time++;
             //Update the time label with the current time
@@ -203,15 +224,43 @@ namespace Battleship
             timeLabel.text = string.Format("{0}:{1}", time / 60, (time % 60).ToString("00"));
         }
 
+        void Restart()
+        {
+            // Unselect the current cell
+            UnselectCurrentCell();
+
+            // Reset the row and column to 0
+            row = 0;
+            col = 0;
+
+            // Select the new cell
+            SelectCurrentCell();
+
+            // Reset the 2D array data to all false
+            hits = new bool[nRows, nCols];
+
+            // Reset the timer and score
+            time = 0;
+            score = 0;
+            timeLabel.text = "0:00";
+            scorelabel.text = "Score: 0";
+
+            // Reset the "Hit" and "Miss" objects on each cell
+            foreach (Transform cell in gridRoot)
+            {
+                Transform hit = cell.Find("Hit");
+                if (hit != null)
+                    hit.gameObject.SetActive(false);
+
+                Transform miss = cell.Find("Miss");
+                if (miss != null)
+                    miss.gameObject.SetActive(false);
+            }
+        }
+
 
         //Additional Tasks
-        //Figure out winLabel error
 
-        // Change the Hit image to be an image of a ship that is destroyed.
-            // Make sure to modify to make it your own.
-            // Add it to textures folder
-
-        //Find a better "Fire" button image
 
         //Create a button that starts the game over.
             //  Create a new function called "Restart".
